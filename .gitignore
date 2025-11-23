@@ -1,0 +1,7 @@
+# Ignore local model folder (too large to push)
+mon_modele_distilbert_V5/
+
+# Optionally ignore common large model file patterns inside the folder
+mon_modele_distilbert_V5/*.safetensors
+mon_modele_distilbert_V5/*.bin
+mon_modele_distilbert_V5/*.pt

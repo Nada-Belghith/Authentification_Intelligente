@@ -15,21 +15,3 @@ def make_ia_prediction(sequence: str):
         return {"prediction_label": "Bénin", "confidence": 0.0}
 
 
-def detect_hijacking(last_log, current_log):
-    score = 0
-    details = []
-
-    WEIGHTS = {"ip": 40, "country": 40, "device": 30}
-
-    if last_log.ip != current_log["ip"]:
-        score += WEIGHTS["ip"]
-        details.append("IP différente")
-    if last_log.country != current_log["country"]:
-        score += WEIGHTS["country"]
-        details.append("Pays différent")
-    if last_log.device != current_log["device"]:
-        score += WEIGHTS["device"]
-        details.append("Device différent")
-
-    hijacking = score >= 60  # seuil critique
-    return hijacking, score, details

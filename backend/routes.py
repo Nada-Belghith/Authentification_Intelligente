@@ -1,10 +1,11 @@
 from flask import render_template, request, jsonify
 import datetime
 import time
+import traceback # Ajout de traceback pour les erreurs
 
 from . import app, db
 from .models import Log
-from .utils import make_ia_prediction, detect_hijacking
+from .utils import make_ia_prediction 
 from .blockchain import add_log_to_chain
 
 
@@ -20,13 +21,11 @@ def login_page():
     return render_template('login.html')
 
 
-
-# --- FONCTIONS EXTERNES DE TRAITEMENT (À définir avant handle_login) ---
+# --- FONCTIONS EXTERNES DE TRAITEMENT ---
 
 def _extract_request_data(request, data, login_status: str) -> dict:
     """Extrait et normalise toutes les données pertinentes de la requête."""
     
-    # 1. Extraction User-Agent
     user_agent = request.headers.get('User-Agent', 'Unknown')
     simulated_browser = "Unknown"
     if "Firefox" in user_agent: simulated_browser = "Firefox"
@@ -36,7 +35,7 @@ def _extract_request_data(request, data, login_status: str) -> dict:
     elif "Opera" in user_agent: simulated_browser = "Opera"
     
     if 'browser' in data:
-        simulated_browser = data['browser'] # Écrase si simulation
+        simulated_browser = data['browser']
         
     return {
         "userid": data.get('username', ''),
@@ -47,38 +46,6 @@ def _extract_request_data(request, data, login_status: str) -> dict:
         "browser": simulated_browser
     }
 
-def _check_hijacking_rules(current_log_data: dict):
-    """Vérifie la détection d'usurpation basée sur la dernière connexion réussie."""
-    username = current_log_data['userid']
-    try:
-        # Tente de récupérer le dernier log VALIDE (status="True")
-        last_valid_log = Log.query.filter_by(userid=username, status="True") \
-                                 .order_by(Log.timestamp.desc()).first()
-
-        if not last_valid_log:
-            return False, None, None # Pas de log précédent, pas de vérification
-
-        # Préparation des données pour la fonction de détection
-        hijacking, score_hj, details_hj = detect_hijacking(last_valid_log, current_log_data)
-        
-        if hijacking:
-            print(f"[Backend] ALERTE USURPATION (Règles): score={score_hj}, détails={details_hj}")
-            # Enregistrement d'une alerte immédiate en BDD
-            usurp_log = Log(
-                ip=current_log_data['ip'], userid=username, status=current_log_data['status'],
-                country=current_log_data['country'], device=current_log_data['device'],
-                risk_label='usur', browser=current_log_data['browser']
-            )
-            db.session.add(usurp_log)
-            db.session.commit()
-            return True, score_hj, details_hj
-            
-        return False, None, None
-    except Exception as e:
-        db.session.rollback()
-        print(f"[Backend] Erreur détection usurpation: {e}")
-        return False, None, None
-
 
 def _process_ia_and_blockchain(new_log_entry: Log):
     """Gère l'analyse IA, la mise à jour du risk_label, et l'envoi à la blockchain."""
@@ -86,25 +53,26 @@ def _process_ia_and_blockchain(new_log_entry: Log):
     ip_address = new_log_entry.ip
     
     try:
-        # --- 4. Analyse IA (Préparation de la séquence) ---
+        # --- 1. Analyse IA (Préparation de la séquence) ---
         time_threshold = datetime.datetime.now() - datetime.timedelta(minutes=1)
         recent_logs = Log.query.filter(
             (Log.timestamp >= time_threshold) &
             ((Log.userid == username) | (Log.ip == ip_address))
         ).order_by(Log.timestamp.asc()).all()
 
-        print(f"[Backend] Logs analysés (1 min) : {len(recent_logs)}")
+        print(f"[Backend] Logs analysés par IA (1 min) : {len(recent_logs)}")
 
         sequence_logs = []
         prev_data = {}
 
         for i, log in enumerate(recent_logs):
             # Récupération des données brutes (avec fallback pour 'browser')
+            # L'attribut temp_browser est utilisé pour le log qu'on vient d'ajouter
             raw_browser = getattr(log, 'browser', getattr(log, 'temp_browser', 'Unknown'))
             raw_country = log.country or "Unknown"
             raw_device = log.device or "Unknown"
 
-            # Calcul CONTEXT_CHANGE
+            # Calcul CONTEXT_CHANGE pour l'IA
             context_change = "False"
             if prev_data:
                 if (log.ip != prev_data['ip']) or (raw_country != prev_data['country']) or (raw_device != prev_data['device']):
@@ -120,7 +88,7 @@ def _process_ia_and_blockchain(new_log_entry: Log):
             # Mise à jour précédents pour le prochain tour
             prev_data = {'ip': log.ip, 'country': raw_country, 'device': raw_device}
 
-        # --- 5. Prédiction et Décision ---
+        # --- 2. Prédiction et Décision ---
         full_sequence = " ".join(sequence_logs)
         current_log_string = sequence_logs[-1] if sequence_logs else ""
         
@@ -128,7 +96,7 @@ def _process_ia_and_blockchain(new_log_entry: Log):
         result_sqli = make_ia_prediction(current_log_string)
         result_history = make_ia_prediction(full_sequence)
         
-        # Logique de décision
+        # Logique de décision (Priorité: SQL > Brute > Usurpation)
         risk_code = 'benin'
         label_sqli = result_sqli.get("prediction_label", "").lower()
         label_history = result_history.get("prediction_label", "").lower()
@@ -140,12 +108,12 @@ def _process_ia_and_blockchain(new_log_entry: Log):
         elif 'usurp' in label_history:
             risk_code = 'usur'
 
-        # Mise à jour BDD (Transaction Séparée)
+        # Mise à jour BDD
         new_log_entry.risk_label = risk_code
         db.session.add(new_log_entry)
         db.session.commit()
 
-        # --- 6. Envoi Blockchain (best-effort) ---
+        # --- 3. Envoi Blockchain (pour TOUS les logs analysés par l'IA) ---
         entry = {
             'userid': new_log_entry.userid, 'ip': new_log_entry.ip, 'country': new_log_entry.country, 
             'device': new_log_entry.device, 'browser': new_log_entry.browser,
@@ -159,12 +127,13 @@ def _process_ia_and_blockchain(new_log_entry: Log):
     except Exception as e:
         db.session.rollback()
         print(f"Erreur lors de l'analyse IA/Blockchain : {e}")
-        import traceback
         traceback.print_exc()
-        return 'error' # Indiquer une erreur grave
+        return 'error'
+
+
 @app.route('/handle_login', methods=['POST'])
 def handle_login():
-    """Gère la tentative de connexion et applique la logique de sécurité."""
+    """Gère la tentative de connexion et applique la logique de sécurité basée UNIQUEMENT sur l'IA."""
     
     data = request.json
     username = data.get('username', '')
@@ -177,24 +146,14 @@ def handle_login():
     current_log_data = _extract_request_data(request, data, login_status)
     print(f"\n[Backend] Nouvelle tentative : {username} | Pays: {current_log_data['country']} | Browser: {current_log_data['browser']}")
 
-    # --- B. Vérification Usurpation (Règles strictes) ---
-    is_hijacking_alert, score, details = _check_hijacking_rules(current_log_data)
-    
-    if is_hijacking_alert:
-        return jsonify({
-            "message": "⚠️ Suspicion d'usurpation de compte (Règles).",
-            "risk_score": score,
-            "details": details
-        }), 401
-
-    # --- C. Enregistrement du log (Pré-IA) ---
+    # --- B. Enregistrement du log (Pré-IA) ---
     try:
         new_log_entry = Log(
             ip=current_log_data['ip'], userid=username, status=login_status,
             country=current_log_data['country'], device=current_log_data['device'],
             browser=current_log_data['browser'] 
         )
-        # Nécessaire pour l'IA immédiate dans le cas où 'browser' n'est pas encore dans la BDD
+        # Nécessaire pour l'IA immédiate (jusqu'à ce que la BDD soit mise à jour)
         new_log_entry.temp_browser = current_log_data['browser'] 
         db.session.add(new_log_entry)
         db.session.commit()
@@ -203,26 +162,28 @@ def handle_login():
         print(f"[Backend] Erreur BDD insertion: {e}")
         return jsonify({"message": "Erreur interne (Log)"}), 500
 
-    # --- D. Analyse IA, Mise à jour BDD et Blockchain ---
+    # --- C. Analyse IA, Mise à jour BDD et Blockchain ---
     risk_code = _process_ia_and_blockchain(new_log_entry)
     
     if risk_code == 'error':
         return jsonify({"message": "Erreur traitement sécurité"}), 500
 
-    # --- E. Actions de Blocage (Post-IA) ---
+    # --- D. Actions de Blocage (Post-IA) ---
+    # Le blocage est maintenant basé uniquement sur le risque prédit par l'IA.
+    
     if risk_code == 'sql':
-        print(f"[Backend] ALERTE MAX: SQL Injection détectée")
+        print(f"[Backend] ALERTE MAX: SQL Injection détectée (IA)")
         return jsonify({"message": "ALERTE SÉCURITÉ : SQL Injection détectée."}), 403
 
     if risk_code == 'brut':
-        print(f"[Backend] ALERTE: Brute Force détecté")
+        print(f"[Backend] ALERTE: Brute Force détecté (IA)")
         return jsonify({"message": "ALERTE SÉCURITÉ : Brute Force détectée."}), 403
 
     if risk_code == 'usur':
         print(f"[Backend] ALERTE: Usurpation détectée (IA).")
-        return jsonify({"message": "Activité suspecte détectée."}), 401 # 401 pour demander une re-auth (MFA)
+        return jsonify({"message": "Usurpation détectée."}), 401
 
-    # --- F. Réponse Standard ---
+    # --- E. Réponse Standard ---
     if login_status == "False":
         return jsonify({"message": "Identifiants incorrects."}), 401
 

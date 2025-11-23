@@ -5,3 +5,74 @@ mon_modele_distilbert_V5/
 mon_modele_distilbert_V5/*.safetensors
 mon_modele_distilbert_V5/*.bin
 mon_modele_distilbert_V5/*.pt
+
+# Local environment file (keep secrets out of git)
+.env
+
+# Python artifacts
+__pycache__/
+*.py[cod]
+*.so
+*.egg
+*.egg-info/
+*.eggs/
+dist/
+build/
+*.pyc
+.pytest_cache/
+.coverage
+htmlcov/
+.tox/
+venv/
+.venv/
+
+# Virtualenv folders
+.venv/
+venv/
+
+# IDE/editor
+.vscode/
+.idea/
+*.sublime-project
+*.sublime-workspace
+
+# Logs
+*.log
+
+# Databases
+*.sqlite3
+*.sqlite
+*.db
+
+# Node / JS
+node_modules/
+npm-debug.log
+yarn-error.log
+package-lock.json
+yarn.lock
+
+# Truffle / Ethereum build artifacts
+eth-security-logger/build/
+eth-security-logger/build/contracts/
+eth-security-logger/build/contracts/*.json
+build/contracts/
+
+# Backend contract data (may contain deployed address/ABI)
+backend/contract_data.json
+
+# Model weights
+*.safetensors
+*.pt
+*.bin
+
+# OS
+.DS_Store
+Thumbs.db
+# Ignore local model folder (too large to push)
+mon_modele_distilbert_V5/
+
+# Optionally ignore common large model file patterns inside the folder
+mon_modele_distilbert_V5/*.safetensors
+mon_modele_distilbert_V5/*.bin
+mon_modele_distilbert_V5/*.pt
+.env

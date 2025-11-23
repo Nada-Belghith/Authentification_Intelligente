@@ -1,0 +1,6 @@
+flask
+flask_sqlalchemy
+sqlalchemy
+requests
+web3
+py-solc-x

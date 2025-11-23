@@ -76,13 +76,6 @@
         </form>
         
         <p id="message"></p>
-        
-        <div class="simulation">
-            <p style="text-align: center; font-size: 14px; color: #555;">(Pour les tests)</p>
-            <div class="form-group">
-                <button id="simulateBtn">Simuler Brute Force (100 logs)</button>
-            </div>
-        </div>
     </div>
 
     <script>
@@ -128,19 +121,7 @@
             }
         });
 
-        // (Script du bouton de simulation Brute Force inchangé...)
-        document.getElementById('simulateBtn').addEventListener('click', async function() {
-             // ... (gardez votre ancien code ici)
-             const messageEl = document.getElementById('message');
-             messageEl.textContent = "Simulation en cours... (100 logs)...";
-             // ...
-             try {
-                const response = await fetch('http://127.0.0.1:5000/simulate_bruteforce', { method: 'POST' });
-                const data = await response.json();
-                if (response.ok) { messageEl.textContent = data.message + " Prêt à tester."; messageEl.className = "success"; }
-                else { messageEl.textContent = data.message; messageEl.className = "error"; }
-             } catch (error) { messageEl.textContent = "Erreur simulation."; messageEl.className = "error"; }
-        });
+        
     </script>
 </body>
 </html>

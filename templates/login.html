@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <title>Authentification Intelligente</title>
+    <style>
+        body { font-family: Arial, sans-serif; display: grid; place-items: center; min-height: 90vh; background-color: #f4f4f4; }
+        .login-container { background: #fff; border: 1px solid #ccc; padding: 25px; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); width: 350px; }
+        .login-container h2 { text-align: center; margin-top: 0; }
+        .form-group { margin-bottom: 15px; }
+        .form-group label { display: block; margin-bottom: 5px; font-weight: bold; }
+        .form-group input, .form-group select { width: 95%; padding: 8px; border: 1px solid #ddd; border-radius: 4px; } /* Selecteur stylisé */
+        .form-group button { width: 100%; padding: 10px; background-color: #007bff; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 16px; }
+        .form-group button:hover { background-color: #0056b3; }
+        #message { margin-top: 20px; text-align: center; font-weight: bold; }
+        #message.success { color: green; }
+        #message.error { color: red; }
+        .simulation { margin-top: 20px; border-top: 1px solid #eee; padding-top: 15px; }
+        .simulation button { background-color: #f0ad4e; }
+        .simulation button:hover { background-color: #ec971f; }
+        
+        /* Style pour la section Simulation de Contexte */
+        .context-simulation { border: 1px dashed #999; padding: 10px; margin-bottom: 15px; background-color: #f9f9f9; border-radius: 4px;}
+        .context-simulation h4 { margin-top: 0; margin-bottom: 10px; font-size: 14px; color: #555; text-align: center;}
+    </style>
+</head>
+<body>
+
+    <div class="login-container">
+        <h2>Connexion Sécurisée (IA)</h2>
+        
+        <form id="loginForm">
+            
+            <div class="context-simulation">
+                <h4>Simulation de Contexte (Test Usurpation)</h4>
+                <div class="form-group">
+                    <label for="country">Pays (Simulation) :</label>
+                    <select id="country" name="country">
+                        <option value="France">France (Normal)</option>
+                        <option value="Tunisie">Tunisie (Normal)</option>
+                        <option value="Russie">Russie (Suspect)</option>
+                        <option value="Chine">Chine (Suspect)</option>
+                        <option value="USA">USA</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="device">Appareil (Simulation) :</label>
+                    <select id="device" name="device">
+                        <option value="Desktop">Desktop (PC)</option>
+                        <option value="Mobile">Mobile</option>
+                    </select>
+                </div>
+            </div>
+            <div class="form-group">
+                <label for="username">Nom d'utilisateur :</label>
+                <input type="text" id="username" name="username" required>
+            </div>
+            <div class="form-group">
+                <label for="password">Mot de passe :</label>
+                <input type="password" id="password" name="password" required>
+            </div>
+            <div class="form-group">
+                <button type="submit">Se connecter</button>
+            </div>
+        </form>
+        
+        <p id="message"></p>
+        
+        <div class="simulation">
+            <p style="text-align: center; font-size: 14px; color: #555;">(Pour les tests)</p>
+            <div class="form-group">
+                <button id="simulateBtn">Simuler Brute Force (100 logs)</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.getElementById('loginForm').addEventListener('submit', async function(event) {
+            event.preventDefault(); 
+            
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+            // Récupérer les valeurs simulées
+            const country = document.getElementById('country').value;
+            const device = document.getElementById('device').value;
+            
+            const messageEl = document.getElementById('message');
+
+            messageEl.textContent = "Vérification en cours...";
+            messageEl.className = "";
+
+            try {
+                const response = await fetch('http://127.0.0.1:5000/handle_login', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    // Envoyer aussi le pays et le device
+                    body: JSON.stringify({ 
+                        username: username, 
+                        password: password,
+                        country: country,
+                        device: device
+                    })
+                });
+                const data = await response.json();
+                if (response.ok) {
+                    messageEl.textContent = data.message;
+                    messageEl.className = "success";
+                } else {
+                    messageEl.textContent = data.message;
+                    messageEl.className = "error";
+                }
+            } catch (error) {
+                messageEl.textContent = "Erreur de connexion au serveur backend.";
+                messageEl.className = "error";
+            }
+        });
+
+        // (Script du bouton de simulation Brute Force inchangé...)
+        document.getElementById('simulateBtn').addEventListener('click', async function() {
+             // ... (gardez votre ancien code ici)
+             const messageEl = document.getElementById('message');
+             messageEl.textContent = "Simulation en cours... (100 logs)...";
+             // ...
+             try {
+                const response = await fetch('http://127.0.0.1:5000/simulate_bruteforce', { method: 'POST' });
+                const data = await response.json();
+                if (response.ok) { messageEl.textContent = data.message + " Prêt à tester."; messageEl.className = "success"; }
+                else { messageEl.textContent = data.message; messageEl.className = "error"; }
+             } catch (error) { messageEl.textContent = "Erreur simulation."; messageEl.className = "error"; }
+        });
+    </script>
+</body>
+</html>

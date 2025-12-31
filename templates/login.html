@@ -2,103 +2,889 @@
 <html lang="fr">
 <head>
     <meta charset="UTF-8">
-    <title>Authentification Intelligente</title>
+    <title>Système d'Authentification Médicale Sécurisée</title>
     <style>
-        body { font-family: Arial, sans-serif; display: grid; place-items: center; min-height: 90vh; background-color: #f4f4f4; }
-        .login-container { background: #fff; border: 1px solid #ccc; padding: 25px; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); width: 350px; }
-        .login-container h2 { text-align: center; margin-top: 0; }
-        .form-group { margin-bottom: 15px; }
-        .form-group label { display: block; margin-bottom: 5px; font-weight: bold; }
-        .form-group input, .form-group select { width: 95%; padding: 8px; border: 1px solid #ddd; border-radius: 4px; } /* Selecteur stylisé */
-        .form-group button { width: 100%; padding: 10px; background-color: #007bff; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 16px; }
-        .form-group button:hover { background-color: #0056b3; }
-        #message { margin-top: 20px; text-align: center; font-weight: bold; }
-        #message.success { color: green; }
-        #message.error { color: red; }
-        .simulation { margin-top: 20px; border-top: 1px solid #eee; padding-top: 15px; }
-        .simulation button { background-color: #f0ad4e; }
-        .simulation button:hover { background-color: #ec971f; }
+        :root {
+            --primary-blue: #1a6bb5;
+            --primary-blue-dark: #0d4d8c;
+            --accent-teal: #20c2c2;
+            --accent-teal-dark: #189e9e;
+            --medical-green: #2ecc71;
+            --medical-green-dark: #27ae60;
+            --warning-orange: #f39c12;
+            --error-red: #e74c3c;
+            --light-gray: #f8f9fa;
+            --medium-gray: #e9ecef;
+            --dark-gray: #495057;
+            --text-color: #333;
+            --shadow-light: 0 4px 12px rgba(0, 0, 0, 0.08);
+            --shadow-medium: 0 6px 18px rgba(0, 0, 0, 0.12);
+            --border-radius: 10px;
+            --transition-speed: 0.3s;
+        }
+        
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            background: linear-gradient(135deg, #f5f7fa 0%, #e4edf5 100%);
+            padding: 20px;
+            color: var(--text-color);
+        }
+        
+        .medical-container {
+            display: flex;
+            width: 900px;
+            max-width: 95%;
+            height: auto;
+            min-height: 600px;
+            border-radius: var(--border-radius);
+            overflow: hidden;
+            box-shadow: var(--shadow-medium);
+            background-color: white;
+        }
+        
+        /* Section d'information médicale */
+        .medical-info {
+            flex: 1;
+            background: linear-gradient(145deg, var(--primary-blue), var(--primary-blue-dark));
+            color: white;
+            padding: 40px 30px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+        
+        .medical-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 30px;
+        }
+        
+        .medical-icon {
+            font-size: 32px;
+            margin-right: 15px;
+            color: var(--accent-teal);
+        }
+        
+        .medical-header h1 {
+            font-size: 24px;
+            font-weight: 600;
+        }
+        
+        .medical-features {
+            margin-top: 40px;
+        }
+        
+        .feature {
+            display: flex;
+            align-items: flex-start;
+            margin-bottom: 25px;
+        }
+        
+        .feature-icon {
+            font-size: 20px;
+            margin-right: 15px;
+            color: var(--accent-teal);
+            flex-shrink: 0;
+            margin-top: 2px;
+        }
+        
+        .feature-text h3 {
+            font-size: 16px;
+            margin-bottom: 5px;
+            font-weight: 600;
+        }
+        
+        .feature-text p {
+            font-size: 14px;
+            opacity: 0.9;
+            line-height: 1.5;
+        }
+        
+        .medical-footer {
+            font-size: 13px;
+            opacity: 0.8;
+            margin-top: 40px;
+            padding-top: 20px;
+            border-top: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        
+        /* Section de connexion */
+        .login-section {
+            flex: 1.2;
+            padding: 40px 35px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            background-color: white;
+            max-height: 100vh;
+            overflow-y: auto;
+        }
+        
+        .login-header {
+            margin-bottom: 30px;
+            text-align: center;
+        }
+        
+        .login-header h2 {
+            color: var(--primary-blue);
+            font-size: 28px;
+            margin-bottom: 8px;
+            font-weight: 700;
+        }
+        
+        .login-header p {
+            color: var(--dark-gray);
+            font-size: 15px;
+        }
+        
+        .login-container {
+            width: 100%;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: var(--dark-gray);
+            font-size: 14px;
+        }
+        
+        .form-group input, 
+        .form-group select {
+            width: 100%;
+            padding: 12px 15px;
+            border: 1px solid var(--medium-gray);
+            border-radius: 8px;
+            font-size: 15px;
+            transition: all var(--transition-speed);
+            background-color: white;
+        }
+        
+        .form-group input:focus, 
+        .form-group select:focus {
+            outline: none;
+            border-color: var(--accent-teal);
+            box-shadow: 0 0 0 3px rgba(32, 194, 194, 0.2);
+        }
+        
+        .form-group input::placeholder {
+            color: #aaa;
+        }
         
         /* Style pour la section Simulation de Contexte */
-        .context-simulation { border: 1px dashed #999; padding: 10px; margin-bottom: 15px; background-color: #f9f9f9; border-radius: 4px;}
-        .context-simulation h4 { margin-top: 0; margin-bottom: 10px; font-size: 14px; color: #555; text-align: center;}
+        .context-simulation {
+            border: 2px dashed var(--medium-gray);
+            padding: 18px;
+            margin-bottom: 25px;
+            background-color: var(--light-gray);
+            border-radius: 8px;
+            transition: all var(--transition-speed);
+        }
+        
+        .context-simulation:hover {
+            border-color: var(--accent-teal);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05);
+        }
+        
+        .context-simulation h4 {
+            margin-top: 0;
+            margin-bottom: 15px;
+            font-size: 15px;
+            color: var(--primary-blue);
+            text-align: center;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .context-simulation h4::before {
+            content: "🔒";
+            margin-right: 8px;
+            font-size: 16px;
+        }
+        
+        /* Boutons */
+        .btn {
+            width: 100%;
+            padding: 14px;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all var(--transition-speed);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        .btn-primary {
+            background-color: var(--primary-blue);
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            background-color: var(--primary-blue-dark);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(26, 107, 181, 0.3);
+        }
+        
+        .btn-primary:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+        
+        .btn-icon {
+            margin-right: 8px;
+            font-size: 18px;
+        }
+        
+        /* Message */
+        #message {
+            margin-top: 20px;
+            padding: 15px;
+            border-radius: 8px;
+            text-align: left;
+            font-weight: 600;
+            display: none;
+            animation: fadeIn 0.5s ease;
+            border-left: 4px solid transparent;
+        }
+        
+        #message.success {
+            display: block;
+            background-color: rgba(46, 204, 113, 0.1);
+            color: var(--medical-green);
+            border: 1px solid rgba(46, 204, 113, 0.3);
+            border-left-color: var(--medical-green);
+        }
+        
+        #message.error {
+            display: block;
+            background-color: rgba(231, 76, 60, 0.1);
+            color: var(--error-red);
+            border: 1px solid rgba(231, 76, 60, 0.3);
+            border-left-color: var(--error-red);
+        }
+        
+        #message.info {
+            display: block;
+            background-color: rgba(52, 152, 219, 0.1);
+            color: var(--primary-blue);
+            border: 1px solid rgba(52, 152, 219, 0.3);
+            border-left-color: var(--primary-blue);
+        }
+        
+        /* Détails d'erreur */
+        .error-details {
+            margin-top: 15px;
+            padding: 12px;
+            background-color: rgba(231, 76, 60, 0.08);
+            border-left: 3px solid var(--error-red);
+            border-radius: 4px;
+            font-size: 13px;
+            line-height: 1.6;
+            display: none;
+        }
+        
+        .error-details.show {
+            display: block;
+        }
+        
+        .error-details strong {
+            color: var(--error-red);
+            display: block;
+            margin-bottom: 8px;
+        }
+        
+        .error-detail-item {
+            margin-bottom: 5px;
+            color: var(--dark-gray);
+        }
+        
+        /* Indicateur de force du mot de passe */
+        .password-strength {
+            margin-top: 8px;
+            height: 5px;
+            border-radius: 3px;
+            background-color: var(--medium-gray);
+            overflow: hidden;
+            display: none;
+        }
+        
+        .strength-bar {
+            height: 100%;
+            width: 0%;
+            transition: width 0.3s ease;
+        }
+        
+        .strength-text {
+            font-size: 12px;
+            margin-top: 5px;
+            text-align: right;
+            color: var(--dark-gray);
+        }
+        
+        /* Animations */
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.02); }
+            100% { transform: scale(1); }
+        }
+        
+        .pulse {
+            animation: pulse 1.5s infinite;
+        }
+        
+        /* Modal d'alerte d'attaque */
+        .alert-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background: linear-gradient(135deg, rgba(231, 76, 60, 0.95) 0%, rgba(192, 57, 43, 0.95) 100%);
+            z-index: 9999;
+            justify-content: center;
+            align-items: center;
+            animation: fadeInFull 0.5s ease;
+        }
+
+        .alert-modal.show {
+            display: flex;
+        }
+
+        .alert-modal-content {
+            background: white;
+            border-radius: var(--border-radius);
+            padding: 30px;
+            max-width: 450px;
+            width: 85%;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            animation: scaleUp 0.5s ease;
+            border: 3px solid var(--error-red);
+            text-align: center;
+        }
+
+        .alert-modal-header {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin-bottom: 20px;
+            gap: 10px;
+        }
+
+        .alert-modal-icon {
+            font-size: 60px;
+            flex-shrink: 0;
+            animation: bounce 1s ease infinite;
+        }
+
+        .alert-modal-title {
+            font-size: 24px;
+            font-weight: 700;
+            color: var(--error-red);
+            margin: 0;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .alert-modal-subtitle {
+            font-size: 14px;
+            color: var(--error-red);
+            margin-top: 5px;
+            font-weight: 600;
+        }
+
+        .alert-modal-body {
+            background-color: rgba(231, 76, 60, 0.08);
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            border-left: 5px solid var(--error-red);
+            text-align: left;
+        }
+
+        .alert-detail-item {
+            margin-bottom: 10px;
+            font-size: 13px;
+            line-height: 1.6;
+            color: var(--text-color);
+        }
+
+        .alert-detail-item strong {
+            color: var(--error-red);
+            font-weight: 700;
+            display: inline-block;
+            min-width: 120px;
+        }
+
+        .alert-modal-footer {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .alert-btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all var(--transition-speed);
+            font-size: 14px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .alert-btn-primary {
+            background-color: var(--error-red);
+            color: white;
+            min-width: 130px;
+        }
+
+        .alert-btn-primary:hover {
+            background-color: #c0392b;
+            transform: scale(1.05);
+            box-shadow: 0 8px 20px rgba(231, 76, 60, 0.4);
+        }
+
+        .alert-btn-secondary {
+            background-color: white;
+            color: var(--error-red);
+            border: 2px solid var(--error-red);
+            min-width: 130px;
+        }
+
+        .alert-btn-secondary:hover {
+            background-color: var(--error-red);
+            color: white;
+            transform: scale(1.05);
+        }
+
+        @keyframes fadeInFull {
+            from {
+                opacity: 0;
+            }
+            to {
+                opacity: 1;
+            }
+        }
+
+        @keyframes scaleUp {
+            from {
+                transform: scale(0.9);
+                opacity: 0;
+            }
+            to {
+                transform: scale(1);
+                opacity: 1;
+            }
+        }
+
+        @keyframes bounce {
+            0%, 100% {
+                transform: translateY(0);
+            }
+            50% {
+                transform: translateY(-10px);
+            }
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .medical-container {
+                flex-direction: column;
+                width: 100%;
+            }
+            
+            .medical-info, .login-section {
+                padding: 30px 25px;
+            }
+            
+            .medical-info {
+                order: 2;
+            }
+            
+            .login-section {
+                order: 1;
+            }
+
+            .alert-modal-content {
+                padding: 30px;
+                max-width: 60%;
+            }
+
+            .alert-modal-title {
+                font-size: 20px;
+            }
+        }
     </style>
+    <!-- Icônes -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 <body>
-
-    <div class="login-container">
-        <h2>Connexion Sécurisée (IA)</h2>
-        
-        <form id="loginForm">
+    <div class="medical-container">
+        <!-- Section d'information médicale -->
+        <div class="medical-info">
+            <div>
+                <div class="medical-header">
+                    <div class="medical-icon">
+                        <i class="fas fa-shield-alt"></i>
+                    </div>
+                    <h1>Plateforme Médicale Sécurisée</h1>
+                </div>
+                
+                <p style="margin-bottom: 30px; line-height: 1.6; font-size: 15px;">
+                    Système d'authentification intelligente conçu pour les professionnels de santé. 
+                    Protégez l'accès aux données sensibles des patients avec notre technologie de sécurité contextuelle.
+                </p>
+                
+                <div class="medical-features">
+                    <div class="feature">
+                        <div class="feature-icon">
+                            <i class="fas fa-user-md"></i>
+                        </div>
+                        <div class="feature-text">
+                            <h3>Authentification Médicale</h3>
+                            <p>Accès sécurisé aux dossiers patients et systèmes de santé avec vérification multi-facteurs.</p>
+                        </div>
+                    </div>
+                    
+                    <div class="feature">
+                        <div class="feature-icon">
+                            <i class="fas fa-brain"></i>
+                        </div>
+                        <div class="feature-text">
+                            <h3>Intelligence Artificielle</h3>
+                            <p>Détection intelligente des tentatives d'accès suspectes basée sur le contexte et le comportement.</p>
+                        </div>
+                    </div>
+                    
+                    <div class="feature">
+                        <div class="feature-icon">
+                            <i class="fas fa-history"></i>
+                        </div>
+                        <div class="feature-text">
+                            <h3>Conformité RGPD Médical</h3>
+                            <p>Respect des normes de confidentialité des données de santé et traçabilité complète des accès.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
             
-            <div class="context-simulation">
-                <h4>Simulation de Contexte (Test Usurpation)</h4>
-                <div class="form-group">
-                    <label for="country">Pays (Simulation) :</label>
-                    <select id="country" name="country">
-                        <option value="France">France (Normal)</option>
-                        <option value="Tunisie">Tunisie (Normal)</option>
-                        <option value="Russie">Russie (Suspect)</option>
-                        <option value="Chine">Chine (Suspect)</option>
-                        <option value="USA">USA</option>
-                    </select>
-                </div>
-                <div class="form-group">
-                    <label for="device">Appareil (Simulation) :</label>
-                    <select id="device" name="device">
-                        <option value="Desktop">Desktop (PC)</option>
-                        <option value="Mobile">Mobile</option>
-                    </select>
-                </div>
-                <div class="form-group">
-                    <label for="browser">Navigateur (Simulation) :</label>
-                    <select id="browser" name="browser">
-                        <option value="Chrome">Chrome</option>
-                        <option value="Firefox">Firefox</option>
-                        <option value="Edge">Edge</option>
-                        <option value="Safari">Safari</option>
-                        <option value="Opera">Opera</option>
-                        <option value="Other">Autre</option>
-                    </select>
-                </div>
+            <div class="medical-footer">
+                <p><i class="fas fa-info-circle" style="margin-right: 5px;"></i> Cet accès est réservé aux professionnels autorisés. Toute tentative non autorisée sera enregistrée et signalée.</p>
             </div>
-            <div class="form-group">
-                <label for="username">Nom d'utilisateur :</label>
-                <input type="text" id="username" name="username" required>
-            </div>
-            <div class="form-group">
-                <label for="password">Mot de passe :</label>
-                <input type="password" id="password" name="password" required>
-            </div>
-            <div class="form-group">
-                <button type="submit">Se connecter</button>
-            </div>
-        </form>
+        </div>
         
-        <p id="message"></p>
+        <!-- Section de connexion -->
+        <div class="login-section">
+            <div class="login-header">
+                <h2>Authentification Médicale</h2>
+                <p>Connectez-vous pour accéder au système médical</p>
+            </div>
+            
+            <div class="login-container">
+                <form id="loginForm">
+                    <!-- Simulation de Contexte -->
+                    <div class="context-simulation">
+                        <h4>Simulation de Contexte de Sécurité</h4>
+                        <div class="form-group">
+                            <label for="country"><i class="fas fa-globe-europe" style="margin-right: 5px;"></i> Localisation (Simulation) :</label>
+                            <select id="country" name="country">
+                                <option value="France">France (Normal)</option>
+                                <option value="Tunisie">Tunisie (Normal)</option>
+                                <option value="Suisse">Suisse (Normal)</option>
+                                <option value="Belgique">Belgique (Normal)</option>
+                                <option value="Russie">Russie (Suspect)</option>
+                                <option value="Chine">Chine (Suspect)</option>
+                                <option value="USA">USA</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="device"><i class="fas fa-laptop" style="margin-right: 5px;"></i> Appareil (Simulation) :</label>
+                            <select id="device" name="device">
+                                <option value="Desktop">Ordinateur de bureau (PC)</option>
+                                <option value="Mobile">Mobile (Téléphone)</option>
+                                <option value="Tablet">Tablette</option>
+                                <option value="Hospital_Device">Appareil Hospitalier</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="browser"><i class="fas fa-window-restore" style="margin-right: 5px;"></i> Navigateur (Simulation) :</label>
+                            <select id="browser" name="browser">
+                                <option value="Chrome">Chrome</option>
+                                <option value="Firefox">Firefox</option>
+                                <option value="Edge">Edge</option>
+                                <option value="Safari">Safari</option>
+                                <option value="Opera">Opera</option>
+                                <option value="Other">Autre / Inconnu</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <!-- Identifiants -->
+                    <div class="form-group">
+                        <label for="username"><i class="fas fa-user" style="margin-right: 5px;"></i> Nom d'utilisateur :</label>
+                        <input type="text" id="username" name="username" required placeholder="Entrez votre identifiant professionnel">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="password"><i class="fas fa-key" style="margin-right: 5px;"></i> Mot de passe :</label>
+                        <input type="password" id="password" name="password" required placeholder="Entrez votre mot de passe sécurisé">
+                        <div class="password-strength" id="passwordStrength">
+                            <div class="strength-bar" id="strengthBar"></div>
+                        </div>
+                        <div class="strength-text" id="strengthText"></div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <button type="submit" class="btn btn-primary" id="submitBtn">
+                            <span class="btn-icon"><i class="fas fa-sign-in-alt"></i></span>
+                            Se connecter au système médical
+                        </button>
+                    </div>
+                </form>
+                
+                <div id="message">
+                    <div id="messageText"></div>
+                    <div class="error-details" id="errorDetails"></div>
+                </div>
+                
+                <div style="margin-top: 25px; text-align: center; font-size: 13px; color: var(--dark-gray);">
+                    <p><i class="fas fa-exclamation-triangle" style="margin-right: 5px; color: var(--warning-orange);"></i> En cas de problème, contactez le support technique au 1234 (interne)</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal d'alerte d'attaque -->
+    <div class="alert-modal" id="attackAlertModal">
+        <div class="alert-modal-content">
+            <div class="alert-modal-header">
+                <div class="alert-modal-icon" id="attackIcon">🚨</div>
+                <div>
+                    <h2 class="alert-modal-title" id="attackTitle">Alerte Détectée</h2>
+                    <p class="alert-modal-subtitle" id="attackSubtitle">Incident de sécurité signalé</p>
+                </div>
+            </div>
+
+            <div class="alert-modal-body" id="attackDetails">
+                <!-- Les détails seront insérés ici par JavaScript -->
+            </div>
+
+            <div class="alert-modal-footer">
+                <button class="alert-btn alert-btn-secondary" id="closeAlertBtn">Fermer</button>
+                <button class="alert-btn alert-btn-primary" id="reportAlertBtn">Signaler au Support</button>
+            </div>
+        </div>
     </div>
 
     <script>
-        document.getElementById('loginForm').addEventListener('submit', async function(event) {
+        // Éléments DOM
+        const loginForm = document.getElementById('loginForm');
+        const messageEl = document.getElementById('message');
+        const messageText = document.getElementById('messageText');
+        const errorDetails = document.getElementById('errorDetails');
+        const passwordInput = document.getElementById('password');
+        const passwordStrength = document.getElementById('passwordStrength');
+        const strengthBar = document.getElementById('strengthBar');
+        const strengthText = document.getElementById('strengthText');
+        const submitBtn = document.getElementById('submitBtn');
+        
+        // Éléments de la modal d'alerte
+        const attackAlertModal = document.getElementById('attackAlertModal');
+        const attackIcon = document.getElementById('attackIcon');
+        const attackTitle = document.getElementById('attackTitle');
+        const attackSubtitle = document.getElementById('attackSubtitle');
+        const attackDetails = document.getElementById('attackDetails');
+        const closeAlertBtn = document.getElementById('closeAlertBtn');
+        const reportAlertBtn = document.getElementById('reportAlertBtn');
+        
+        // Fonction pour afficher la modal d'alerte d'attaque
+        function showAttackAlert(attackType, description, riskLevel, username, country, device, browser) {
+            // Icônes selon le type d'attaque
+            const icons = {
+                'SQL Injection': '🚨',
+                'Brute Force': '⚠️',
+                'Usurpation de Compte': '🔓'
+            };
+
+            attackIcon.textContent = icons[attackType] || '🚨';
+            attackTitle.textContent = `ALERTE: ${attackType} Détecté!`;
+            attackSubtitle.textContent = `Niveau de risque: ${riskLevel}`;
+
+            attackDetails.innerHTML = `
+                <div class="alert-detail-item">
+                    <strong>Type d'attaque:</strong> ${attackType}
+                </div>
+                <div class="alert-detail-item">
+                    <strong>Description:</strong> ${description}
+                </div>
+                <div class="alert-detail-item">
+                    <strong>Utilisateur:</strong> ${username}
+                </div>
+                <div class="alert-detail-item">
+                    <strong>Localisation:</strong> ${country}
+                </div>
+                <div class="alert-detail-item">
+                    <strong>Appareil:</strong> ${device}
+                </div>
+                <div class="alert-detail-item">
+                    <strong>Navigateur:</strong> ${browser}
+                </div>
+                <div class="alert-detail-item">
+                    <strong>Heure:</strong> ${new Date().toLocaleString()}
+                </div>
+                <div class="alert-detail-item">
+                    <strong>Status:</strong> 🔒 Accès bloqué et incident enregistré sur la blockchain
+                </div>
+            `;
+
+            attackAlertModal.classList.add('show');
+        }
+
+        // Fermer la modal d'alerte
+        closeAlertBtn.addEventListener('click', () => {
+            attackAlertModal.classList.remove('show');
+            submitBtn.innerHTML = '<span class="btn-icon"><i class="fas fa-sign-in-alt"></i></span> Se connecter au système médical';
+            submitBtn.disabled = false;
+        });
+
+        // Signaler au support
+        reportAlertBtn.addEventListener('click', () => {
+            alert('Merci de signaler cet incident. Notre équipe de sécurité a été notifiée automatiquement.');
+            attackAlertModal.classList.remove('show');
+            submitBtn.innerHTML = '<span class="btn-icon"><i class="fas fa-sign-in-alt"></i></span> Se connecter au système médical';
+            submitBtn.disabled = false;
+        });
+
+        // Fermer la modal en cliquant en dehors
+        attackAlertModal.addEventListener('click', (e) => {
+            if (e.target === attackAlertModal) {
+                attackAlertModal.classList.remove('show');
+                submitBtn.innerHTML = '<span class="btn-icon"><i class="fas fa-sign-in-alt"></i></span> Se connecter au système médical';
+                submitBtn.disabled = false;
+            }
+        });
+        
+        // Variables pour simulation
+        const suspiciousCountries = ['Russie', 'Chine'];
+        const validCredentials = [
+            { username: 'admin', password: 'password123' },
+            { username: 'sara', password: 'pass' }
+        ];
+        let loginAttempts = 0;
+        
+        // Initialisation
+        document.addEventListener('DOMContentLoaded', function() {
+            document.getElementById('username').value = '';
+            document.getElementById('password').value = '';
+            updatePasswordStrength();
+        });
+        
+        // Écouteur pour la force du mot de passe
+        passwordInput.addEventListener('input', updatePasswordStrength);
+        
+        // Fonction pour calculer la force du mot de passe
+        function updatePasswordStrength() {
+            const password = passwordInput.value;
+            if (!password) {
+                passwordStrength.style.display = 'none';
+                return;
+            }
+            
+            passwordStrength.style.display = 'block';
+            
+            let strength = 0;
+            if (password.length >= 8) strength += 25;
+            if (/[A-Z]/.test(password)) strength += 25;
+            if (/[0-9]/.test(password)) strength += 25;
+            if (/[^A-Za-z0-9]/.test(password)) strength += 25;
+            
+            strengthBar.style.width = `${strength}%`;
+            
+            let color = '';
+            let text = '';
+            
+            if (strength < 50) {
+                color = '#e74c3c';
+                text = 'Faible';
+            } else if (strength < 75) {
+                color = '#f39c12';
+                text = 'Moyen';
+            } else {
+                color = '#2ecc71';
+                text = 'Fort';
+            }
+            
+            strengthBar.style.backgroundColor = color;
+            strengthText.textContent = `Force du mot de passe: ${text}`;
+            strengthText.style.color = color;
+        }
+        
+        // Fonction pour afficher un message
+        function showMessage(text, type, details = null) {
+            messageText.innerHTML = text;
+            messageEl.className = type;
+            
+            if (details) {
+                errorDetails.classList.add('show');
+                errorDetails.innerHTML = details;
+            } else {
+                errorDetails.classList.remove('show');
+            }
+        }
+        
+        // Gestionnaire de soumission du formulaire
+        loginForm.addEventListener('submit', async function(event) {
             event.preventDefault(); 
             
-            const username = document.getElementById('username').value;
+            const username = document.getElementById('username').value.trim();
             const password = document.getElementById('password').value;
-            // Récupérer les valeurs simulées
             const country = document.getElementById('country').value;
             const device = document.getElementById('device').value;
             const browser = document.getElementById('browser').value;
             
-            const messageEl = document.getElementById('message');
-
-            messageEl.textContent = "Vérification en cours...";
-            messageEl.className = "";
-
+            if (!username || !password) {
+                showMessage("❌ Veuillez remplir tous les champs obligatoires.", "error");
+                return;
+            }
+            
+            submitBtn.innerHTML = '<span class="btn-icon"><i class="fas fa-spinner fa-spin"></i></span> Vérification en cours...';
+            submitBtn.disabled = true;
+            
+            showMessage("⏳ Analyse du contexte de sécurité et vérification IA...", "info");
+            
             try {
+                // Envoyer les données au backend pour analyse IA complète
                 const response = await fetch('http://127.0.0.1:5000/handle_login', {
                     method: 'POST',
                     headers: {'Content-Type': 'application/json'},
-                    // Envoyer aussi le pays et le device
                     body: JSON.stringify({ 
                         username: username, 
                         password: password,
@@ -107,21 +893,64 @@
                         browser: browser
                     })
                 });
+                
                 const data = await response.json();
+                
+                // --- SUCCÈS: Credentials valides et pas d'attaque détectée ---
                 if (response.ok) {
-                    messageEl.textContent = data.message;
-                    messageEl.className = "success";
-                } else {
-                    messageEl.textContent = data.message;
-                    messageEl.className = "error";
+                    showMessage("✅ Vérification réussie! Accès autorisé.", "success");
+                    submitBtn.innerHTML = '<span class="btn-icon"><i class="fas fa-check"></i></span> Connexion réussie!';
+                    submitBtn.style.backgroundColor = 'var(--medical-green)';
+                    
+                    await new Promise(resolve => setTimeout(resolve, 1000));
+                    const params = new URLSearchParams({
+                        username: username,
+                        country: country,
+                        device: device,
+                        browser: browser
+                    });
+                    window.location.href = `/home?${params.toString()}`;
+                    return;
                 }
+                
+                // --- ERREUR: Attaque détectée ou identifiants incorrects ---
+                
+                // Utiliser les informations détaillées du backend si disponibles
+                if (data.attack_type) {
+                    // Afficher la modal d'alerte d'attaque
+                    showAttackAlert(
+                        data.attack_type,
+                        data.description,
+                        data.risk_level,
+                        username,
+                        country,
+                        device,
+                        browser
+                    );
+                    return;
+                } else if (response.status === 401) {
+                    // Identifiants incorrects - afficher le message dans la boîte du formulaire
+                    let alertTitle = "❌ Identifiants Incorrects";
+                    let alertDetails = `
+                        <strong>Erreur d'authentification</strong>
+                        <div class="error-detail-item"><strong>Utilisateur:</strong> ${username}</div>
+                        <div class="error-detail-item"><strong>Raison:</strong> Couple identifiant/mot de passe non reconnu</div>
+                        <div class="error-detail-item"><strong>Tentative de:</strong> ${new Date().toLocaleString()}</div>
+                    `;
+                    showMessage(alertTitle, "error", alertDetails);
+                }
+                
+                submitBtn.innerHTML = '<span class="btn-icon"><i class="fas fa-sign-in-alt"></i></span> Se connecter au système médical';
+                submitBtn.disabled = false;
+                
             } catch (error) {
-                messageEl.textContent = "Erreur de connexion au serveur backend.";
-                messageEl.className = "error";
+                console.error('Erreur réseau:', error);
+                showMessage("❌ Erreur de connexion au serveur d'authentification.", "error", 
+                    `<strong>Détail de l'erreur:</strong> Impossible de joindre le serveur de sécurité`);
+                submitBtn.innerHTML = '<span class="btn-icon"><i class="fas fa-sign-in-alt"></i></span> Se connecter au système médical';
+                submitBtn.disabled = false;
             }
         });
-
-        
     </script>
 </body>
 </html>

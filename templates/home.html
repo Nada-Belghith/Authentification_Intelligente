@@ -1,0 +1,1513 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tableau de Bord - Système d'Authentification Médicale</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --medical-blue: #1a5f7a;
+            --medical-teal: #2a9d8f;
+            --medical-green: #27ae60;
+            --medical-red: #e74c3c;
+            --medical-orange: #f39c12;
+            --medical-purple: #9b59b6;
+            --medical-light: #e9f5f2;
+            --medical-white: #ffffff;
+            --medical-dark: #264653;
+            --medical-gray: #95a5a6;
+            --sidebar-width: 280px;
+            --header-height: 70px;
+            --shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            --radius: 10px;
+            --transition: all 0.3s ease;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #f5f7fa 0%, #e4edf5 100%);
+            color: var(--medical-dark);
+            min-height: 100vh;
+            display: flex;
+        }
+
+        /* Sidebar */
+        .sidebar {
+            width: var(--sidebar-width);
+            background: linear-gradient(180deg, var(--medical-dark), var(--medical-blue));
+            color: white;
+            height: 100vh;
+            position: fixed;
+            padding-top: 20px;
+            box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1);
+            transition: var(--transition);
+        }
+
+        .sidebar-header {
+            padding: 0 25px 30px 25px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            font-size: 22px;
+            font-weight: 700;
+        }
+
+        .logo i {
+            margin-right: 12px;
+            color: var(--medical-teal);
+            font-size: 26px;
+        }
+
+        .user-profile {
+            padding: 25px;
+            text-align: center;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            margin-bottom: 20px;
+        }
+
+        .user-avatar {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--medical-teal), var(--medical-green));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 15px;
+            font-size: 28px;
+            color: white;
+            font-weight: bold;
+        }
+
+        .user-name {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 5px;
+        }
+
+        .user-role {
+            display: inline-block;
+            padding: 5px 15px;
+            background: rgba(42, 157, 143, 0.2);
+            border-radius: 20px;
+            font-size: 13px;
+            margin-bottom: 8px;
+        }
+
+        .user-department {
+            font-size: 14px;
+            opacity: 0.9;
+        }
+
+        .nav-menu {
+            list-style: none;
+            padding: 0 15px;
+        }
+
+        .nav-item {
+            margin-bottom: 5px;
+        }
+
+        .nav-link {
+            display: flex;
+            align-items: center;
+            padding: 14px 18px;
+            color: rgba(255, 255, 255, 0.9);
+            text-decoration: none;
+            border-radius: 8px;
+            transition: var(--transition);
+            font-weight: 500;
+        }
+
+        .nav-link:hover,
+        .nav-link.active {
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            transform: translateX(5px);
+        }
+
+        .nav-link i {
+            margin-right: 15px;
+            width: 20px;
+            text-align: center;
+            font-size: 18px;
+        }
+
+        .nav-badge {
+            margin-left: auto;
+            background: var(--medical-red);
+            color: white;
+            font-size: 12px;
+            padding: 3px 8px;
+            border-radius: 12px;
+            min-width: 20px;
+            text-align: center;
+        }
+
+        .sidebar-footer {
+            position: absolute;
+            bottom: 30px;
+            left: 0;
+            right: 0;
+            padding: 0 25px;
+        }
+
+        .logout-btn {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 100%;
+            padding: 12px;
+            background: rgba(231, 76, 60, 0.2);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: var(--transition);
+        }
+
+        .logout-btn:hover {
+            background: rgba(231, 76, 60, 0.4);
+        }
+
+        .logout-btn i {
+            margin-right: 10px;
+        }
+
+        /* Main Content */
+        .main-content {
+            flex: 1;
+            margin-left: var(--sidebar-width);
+            padding: 25px;
+            min-height: 100vh;
+            transition: var(--transition);
+        }
+
+        /* Header */
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: white;
+            padding: 20px 30px;
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+            margin-bottom: 30px;
+        }
+
+        .header-title h1 {
+            color: var(--medical-blue);
+            font-size: 28px;
+            font-weight: 700;
+            margin-bottom: 5px;
+        }
+
+        .header-title p {
+            color: var(--medical-gray);
+            font-size: 14px;
+        }
+
+        .header-actions {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .notification-btn {
+            position: relative;
+            background: none;
+            border: none;
+            font-size: 22px;
+            color: var(--medical-dark);
+            cursor: pointer;
+            padding: 10px;
+            border-radius: 50%;
+            transition: var(--transition);
+        }
+
+        .notification-btn:hover {
+            background: var(--medical-light);
+            color: var(--medical-blue);
+        }
+
+        .notification-badge {
+            position: absolute;
+            top: 5px;
+            right: 5px;
+            background: var(--medical-red);
+            color: white;
+            font-size: 11px;
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .current-time {
+            background: var(--medical-light);
+            padding: 10px 20px;
+            border-radius: 20px;
+            font-weight: 500;
+            color: var(--medical-blue);
+            font-size: 14px;
+        }
+
+        /* Stats Grid */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 25px;
+            margin-bottom: 40px;
+        }
+
+        .stat-card {
+            background: white;
+            border-radius: var(--radius);
+            padding: 25px;
+            box-shadow: var(--shadow);
+            transition: var(--transition);
+            position: relative;
+            overflow: hidden;
+            border-top: 4px solid;
+        }
+
+        .stat-card:nth-child(1) { border-color: var(--medical-green); }
+        .stat-card:nth-child(2) { border-color: var(--medical-blue); }
+        .stat-card:nth-child(3) { border-color: var(--medical-orange); }
+        .stat-card:nth-child(4) { border-color: var(--medical-purple); }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+        }
+
+        .stat-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .stat-title h3 {
+            font-size: 16px;
+            color: var(--medical-gray);
+            margin-bottom: 5px;
+        }
+
+        .stat-value {
+            font-size: 32px;
+            font-weight: 700;
+            color: var(--medical-dark);
+        }
+
+        .stat-icon {
+            width: 50px;
+            height: 50px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 22px;
+            color: white;
+        }
+
+        .stat-card:nth-child(1) .stat-icon { background: var(--medical-green); }
+        .stat-card:nth-child(2) .stat-icon { background: var(--medical-blue); }
+        .stat-card:nth-child(3) .stat-icon { background: var(--medical-orange); }
+        .stat-card:nth-child(4) .stat-icon { background: var(--medical-purple); }
+
+        .stat-trend {
+            font-size: 14px;
+            margin-top: 10px;
+            display: flex;
+            align-items: center;
+        }
+
+        .stat-trend.positive { color: var(--medical-green); }
+        .stat-trend.negative { color: var(--medical-red); }
+        .stat-trend i { margin-right: 5px; }
+
+        /* Dashboard Sections */
+        .dashboard-sections {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 30px;
+        }
+
+        @media (max-width: 1200px) {
+            .dashboard-sections {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .section {
+            background: white;
+            border-radius: var(--radius);
+            padding: 30px;
+            box-shadow: var(--shadow);
+        }
+
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid #eee;
+        }
+
+        .section-title {
+            font-size: 20px;
+            font-weight: 700;
+            color: var(--medical-blue);
+        }
+
+        .section-action {
+            color: var(--medical-teal);
+            font-weight: 600;
+            font-size: 14px;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .section-action:hover {
+            color: var(--medical-blue);
+        }
+
+        /* Patients Table */
+        .patients-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .patients-table thead {
+            background: var(--medical-light);
+        }
+
+        .patients-table th {
+            text-align: left;
+            padding: 15px 20px;
+            color: var(--medical-dark);
+            font-weight: 600;
+            font-size: 14px;
+        }
+
+        .patients-table td {
+            padding: 18px 20px;
+            border-bottom: 1px solid #f0f0f0;
+        }
+
+        .patient-cell {
+            display: flex;
+            align-items: center;
+        }
+
+        .patient-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: var(--medical-light);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 15px;
+            font-weight: 600;
+            color: var(--medical-teal);
+        }
+
+        .patient-info h4 {
+            font-size: 15px;
+            margin-bottom: 3px;
+            font-weight: 600;
+        }
+
+        .patient-info p {
+            font-size: 13px;
+            color: var(--medical-gray);
+        }
+
+        .status-badge {
+            display: inline-block;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .status-stable { background: rgba(39, 174, 96, 0.1); color: var(--medical-green); }
+        .status-urgent { background: rgba(231, 76, 60, 0.1); color: var(--medical-red); }
+        .status-waiting { background: rgba(243, 156, 18, 0.1); color: var(--medical-orange); }
+
+        /* Quick Lists */
+        .quick-list {
+            list-style: none;
+        }
+
+        .quick-item {
+            display: flex;
+            align-items: center;
+            padding: 18px 0;
+            border-bottom: 1px solid #f0f0f0;
+        }
+
+        .quick-item:last-child {
+            border-bottom: none;
+        }
+
+        .quick-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 15px;
+            color: white;
+            font-size: 18px;
+        }
+
+        .quick-icon.alert { background: var(--medical-orange); }
+        .quick-icon.rdv { background: var(--medical-teal); }
+        .quick-icon.lab { background: var(--medical-purple); }
+        .quick-icon.msg { background: var(--medical-blue); }
+
+        .quick-content h4 {
+            font-size: 15px;
+            margin-bottom: 5px;
+            font-weight: 600;
+        }
+
+        .quick-content p {
+            font-size: 13px;
+            color: var(--medical-gray);
+            line-height: 1.4;
+        }
+
+        .quick-time {
+            font-size: 12px;
+            color: var(--medical-gray);
+            margin-left: auto;
+            white-space: nowrap;
+        }
+
+        /* Notification System */
+        .notification-container {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 1000;
+            width: 100%;
+            max-width: 400px;
+        }
+
+        .notification-box {
+            padding: 20px;
+            border-radius: var(--radius);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            margin-bottom: 10px;
+            animation: slideIn 0.4s ease;
+            display: flex;
+            gap: 15px;
+            align-items: flex-start;
+            backdrop-filter: blur(10px);
+        }
+
+        .notification-box.success {
+            background: rgba(46, 204, 113, 0.15);
+            border: 2px solid var(--medical-green);
+            color: var(--medical-green);
+        }
+
+        .notification-box.warning {
+            background: rgba(243, 156, 18, 0.15);
+            border: 2px solid var(--medical-orange);
+            color: var(--medical-orange);
+        }
+
+        .notification-box.error {
+            background: rgba(231, 76, 60, 0.15);
+            border: 2px solid var(--medical-red);
+            color: var(--medical-red);
+        }
+
+        .notification-box.info {
+            background: rgba(26, 107, 181, 0.15);
+            border: 2px solid var(--medical-blue);
+            color: var(--medical-blue);
+        }
+
+        .notification-icon {
+            font-size: 24px;
+            flex-shrink: 0;
+        }
+
+        .notification-content {
+            flex: 1;
+        }
+
+        .notification-title {
+            font-weight: 700;
+            margin-bottom: 5px;
+            font-size: 16px;
+        }
+
+        .notification-message {
+            font-size: 14px;
+            opacity: 0.9;
+            margin-bottom: 8px;
+            line-height: 1.5;
+        }
+
+        .notification-details {
+            font-size: 13px;
+            opacity: 0.8;
+            background: rgba(255, 255, 255, 0.2);
+            padding: 8px 12px;
+            border-radius: 6px;
+            margin-top: 8px;
+        }
+
+        .notification-close {
+            cursor: pointer;
+            font-size: 20px;
+            opacity: 0.6;
+            transition: opacity var(--transition);
+            flex-shrink: 0;
+            padding: 5px;
+        }
+
+        .notification-close:hover {
+            opacity: 1;
+        }
+
+        /* Medical Alert */
+        .medical-alert {
+            background: linear-gradient(to right, #fff8e1, #fff);
+            border-left: 4px solid var(--medical-orange);
+            border-radius: 8px;
+            padding: 20px;
+            margin-top: 30px;
+        }
+
+        .alert-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .alert-icon {
+            width: 40px;
+            height: 40px;
+            background: var(--medical-orange);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 15px;
+            color: white;
+            font-size: 18px;
+        }
+
+        .alert-title {
+            font-size: 16px;
+            font-weight: 700;
+            color: var(--medical-dark);
+        }
+
+        .alert-content {
+            font-size: 14px;
+            color: var(--medical-dark);
+            line-height: 1.6;
+            margin-bottom: 15px;
+        }
+
+        .alert-actions {
+            display: flex;
+            gap: 10px;
+        }
+
+        .alert-btn {
+            padding: 8px 16px;
+            border-radius: 6px;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            border: none;
+            transition: var(--transition);
+        }
+
+        .alert-btn.primary {
+            background: var(--medical-blue);
+            color: white;
+        }
+
+        .alert-btn.secondary {
+            background: transparent;
+            color: var(--medical-blue);
+            border: 1px solid var(--medical-blue);
+        }
+
+        .alert-btn:hover {
+            transform: translateY(-2px);
+        }
+
+        /* Mobile Menu Toggle */
+        .menu-toggle {
+            display: none;
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            z-index: 1100;
+            background: var(--medical-blue);
+            color: white;
+            border: none;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            font-size: 22px;
+            cursor: pointer;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        @media (max-width: 1024px) {
+            .sidebar {
+                transform: translateX(-100%);
+            }
+            
+            .sidebar.active {
+                transform: translateX(0);
+            }
+            
+            .main-content {
+                margin-left: 0;
+                padding: 20px;
+            }
+            
+            .menu-toggle {
+                display: block;
+            }
+        }
+
+        /* Animations */
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateX(500px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        @keyframes fadeOut {
+            from {
+                opacity: 1;
+                transform: translateX(0);
+            }
+            to {
+                opacity: 0;
+                transform: translateX(500px);
+            }
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .fade-in {
+            animation: fadeIn 0.5s ease forwards;
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+
+        .pulse {
+            animation: pulse 2s infinite;
+        }
+
+        /* Context Security */
+        .context-security {
+            background: var(--medical-light);
+            border-radius: var(--radius);
+            padding: 20px;
+            margin-top: 20px;
+            border-left: 4px solid var(--medical-green);
+        }
+
+        .context-title {
+            font-weight: 600;
+            color: var(--medical-blue);
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .context-details {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-top: 15px;
+        }
+
+        .context-item {
+            background: white;
+            padding: 12px 15px;
+            border-radius: 8px;
+            border: 1px solid rgba(0, 0, 0, 0.05);
+        }
+
+        .context-label {
+            font-size: 13px;
+            color: var(--medical-gray);
+            margin-bottom: 5px;
+        }
+
+        .context-value {
+            font-weight: 600;
+            color: var(--medical-dark);
+        }
+
+        .context-value.safe { color: var(--medical-green); }
+        .context-value.warning { color: var(--medical-orange); }
+        .context-value.danger { color: var(--medical-red); }
+    </style>
+</head>
+<body>
+    <!-- Mobile Menu Toggle -->
+    <button class="menu-toggle" id="menuToggle">
+        <i class="fas fa-bars"></i>
+    </button>
+
+    <!-- Sidebar -->
+    <nav class="sidebar" id="sidebar">
+        <div class="sidebar-header">
+            <div class="logo">
+                <i class="fas fa-heartbeat"></i>
+                <span>Med</span>Secure
+            </div>
+        </div>
+
+        <div class="user-profile">
+            <div class="user-avatar" id="userAvatar">
+                <!-- Initials will be loaded by JS -->
+            </div>
+            <div class="user-name" id="userName">Dr. Sophie Martin</div>
+            <div class="user-role" id="userRole">Médecin</div>
+            <div class="user-department" id="userDepartment">Médecine Générale</div>
+        </div>
+
+        <ul class="nav-menu">
+            <li class="nav-item">
+                <a href="#" class="nav-link active">
+                    <i class="fas fa-tachometer-alt"></i>
+                    <span>Tableau de Bord</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a href="#" class="nav-link">
+                    <i class="fas fa-users-medical"></i>
+                    <span>Mes Patients</span>
+                    <span class="nav-badge" id="patientsBadge">12</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a href="#" class="nav-link">
+                    <i class="fas fa-calendar-check"></i>
+                    <span>Rendez-vous</span>
+                    <span class="nav-badge" id="rdvBadge">8</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a href="#" class="nav-link">
+                    <i class="fas fa-file-medical-alt"></i>
+                    <span>Dossiers</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a href="#" class="nav-link">
+                    <i class="fas fa-prescription-bottle-alt"></i>
+                    <span>Ordonnances</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a href="#" class="nav-link">
+                    <i class="fas fa-chart-line"></i>
+                    <span>Rapports</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a href="#" class="nav-link">
+                    <i class="fas fa-cogs"></i>
+                    <span>Paramètres</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a href="#" class="nav-link">
+                    <i class="fas fa-shield-alt"></i>
+                    <span>Sécurité</span>
+                </a>
+            </li>
+        </ul>
+
+        <div class="sidebar-footer">
+            <button class="logout-btn" id="logoutBtn">
+                <i class="fas fa-sign-out-alt"></i>
+                <span>Déconnexion</span>
+            </button>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <!-- Header -->
+        <header class="header">
+            <div class="header-title">
+                <h1 id="dashboardTitle">Tableau de Bord Médical</h1>
+                <p id="dashboardSubtitle">Bienvenue Dr. Martin - Dernière mise à jour: Aujourd'hui</p>
+            </div>
+
+            <div class="header-actions">
+                <button class="notification-btn" id="notificationButton">
+                    <i class="fas fa-bell"></i>
+                    <span class="notification-badge" id="notificationBadge">3</span>
+                </button>
+                <div class="current-time" id="currentTime"></div>
+            </div>
+        </header>
+
+        <!-- Stats Grid -->
+        <div class="stats-grid">
+            <div class="stat-card fade-in">
+                <div class="stat-header">
+                    <div class="stat-title">
+                        <h3>Patients Actifs</h3>
+                        <div class="stat-value" id="statPatients">0</div>
+                    </div>
+                    <div class="stat-icon">
+                        <i class="fas fa-user-injured"></i>
+                    </div>
+                </div>
+                <div class="stat-trend positive">
+                    <i class="fas fa-arrow-up"></i> +12% ce mois
+                </div>
+            </div>
+
+            <div class="stat-card fade-in">
+                <div class="stat-header">
+                    <div class="stat-title">
+                        <h3>RDV Aujourd'hui</h3>
+                        <div class="stat-value" id="statRdv">0</div>
+                    </div>
+                    <div class="stat-icon">
+                        <i class="fas fa-calendar-day"></i>
+                    </div>
+                </div>
+                <div class="stat-trend positive">
+                    <i class="fas fa-check-circle"></i> 3 de disponibles
+                </div>
+            </div>
+
+            <div class="stat-card fade-in">
+                <div class="stat-header">
+                    <div class="stat-title">
+                        <h3>Alertes Patient</h3>
+                        <div class="stat-value" id="statAlerts">0</div>
+                    </div>
+                    <div class="stat-icon">
+                        <i class="fas fa-exclamation-triangle"></i>
+                    </div>
+                </div>
+                <div class="stat-trend negative">
+                    <i class="fas fa-arrow-up"></i> 2 nouvelles
+                </div>
+            </div>
+
+            <div class="stat-card fade-in">
+                <div class="stat-header">
+                    <div class="stat-title">
+                        <h3>Taux d'Occupation</h3>
+                        <div class="stat-value" id="statOccupation">0%</div>
+                    </div>
+                    <div class="stat-icon">
+                        <i class="fas fa-bed"></i>
+                    </div>
+                </div>
+                <div class="stat-trend">
+                    <i class="fas fa-info-circle"></i> 5 lits disponibles
+                </div>
+            </div>
+        </div>
+
+        <!-- Context Security -->
+        <div class="context-security fade-in">
+            <div class="context-title">
+                <i class="fas fa-shield-alt"></i>
+                Contexte de Sécurité de la Session
+            </div>
+            <div class="context-details" id="contextDetails">
+                <!-- Context details loaded by JS -->
+            </div>
+        </div>
+
+        <!-- Dashboard Sections -->
+        <div class="dashboard-sections">
+            <!-- Left Section -->
+            <div>
+                <!-- Recent Patients -->
+                <section class="section fade-in">
+                    <div class="section-header">
+                        <h2 class="section-title">Patients Récemment Consultés</h2>
+                        <div class="section-action" id="viewAllPatients">
+                            Voir tout <i class="fas fa-arrow-right"></i>
+                        </div>
+                    </div>
+
+                    <table class="patients-table" id="patientsTable">
+                        <!-- Patients loaded by JavaScript -->
+                    </table>
+                </section>
+
+                <!-- Medical Alert -->
+                <section class="medical-alert fade-in">
+                    <div class="alert-header">
+                        <div class="alert-icon">
+                            <i class="fas fa-brain"></i>
+                        </div>
+                        <div class="alert-title">Recommandation de l'IA</div>
+                    </div>
+                    <div class="alert-content">
+                        L'analyse des données suggère une augmentation des cas de grippe saisonnière dans votre région. 
+                        Considérez la vaccination préventive pour les patients à risque.
+                    </div>
+                    <div class="alert-actions">
+                        <button class="alert-btn primary" id="viewAnalysis">Voir l'analyse</button>
+                        <button class="alert-btn secondary" id="ignoreAlert">Ignorer</button>
+                    </div>
+                </section>
+            </div>
+
+            <!-- Right Section -->
+            <div>
+                <!-- Alerts -->
+                <section class="section fade-in">
+                    <div class="section-header">
+                        <h2 class="section-title">Alertes & Notifications</h2>
+                        <div class="section-action" id="markAllRead">
+                            Tout marquer comme lu
+                        </div>
+                    </div>
+
+                    <ul class="quick-list" id="alertsList">
+                        <!-- Alerts loaded by JavaScript -->
+                    </ul>
+                </section>
+
+                <!-- Upcoming Appointments -->
+                <section class="section fade-in">
+                    <div class="section-header">
+                        <h2 class="section-title">Prochains RDV</h2>
+                        <div class="section-action" id="viewSchedule">
+                            Agenda complet
+                        </div>
+                    </div>
+
+                    <ul class="quick-list" id="appointmentsList">
+                        <!-- Appointments loaded by JavaScript -->
+                    </ul>
+                </section>
+            </div>
+        </div>
+    </main>
+
+    <!-- Notification Container -->
+    <div class="notification-container" id="notificationContainer"></div>
+
+    <script>
+        // Mock data
+        const patientsData = [
+            { id: 'P001', name: 'Jean Dupont', lastVisit: '2024-01-15', diagnosis: 'Hypertension artérielle', status: 'stable', age: 62, initials: 'JD' },
+            { id: 'P002', name: 'Marie Curie', lastVisit: '2024-01-14', diagnosis: 'Contrôle annuel', status: 'stable', age: 45, initials: 'MC' },
+            { id: 'P003', name: 'Paul Durand', lastVisit: '2024-01-13', diagnosis: 'Diabète type 2', status: 'urgent', age: 58, initials: 'PD' },
+            { id: 'P004', name: 'Sophie Lambert', lastVisit: '2024-01-12', diagnosis: 'Suivi post-opératoire', status: 'stable', age: 34, initials: 'SL' },
+            { id: 'P005', name: 'Robert Martin', lastVisit: '2024-01-11', diagnosis: 'Infection respiratoire', status: 'waiting', age: 71, initials: 'RM' }
+        ];
+
+        const alertsData = [
+            { type: 'alert', icon: 'exclamation-triangle', title: 'Résultats anormaux', description: 'Patient #P003 - Glycémie élevée', time: '10:30' },
+            { type: 'rdv', icon: 'calendar-check', title: 'RDV confirmé', description: 'M. Bernard - 14h30 aujourd\'hui', time: '09:15' },
+            { type: 'lab', icon: 'flask', title: 'Résultats disponibles', description: 'Analyses sanguines - 5 patients', time: '08:45' },
+            { type: 'msg', icon: 'comment-medical', title: 'Message du Dr. Lefevre', description: 'Référence patient urgent', time: 'Hier' }
+        ];
+
+        const appointmentsData = [
+            { patient: 'M. Bernard', time: '14:30', type: 'Consultation', duration: '30 min' },
+            { patient: 'Mme. Petit', time: '15:15', type: 'Suivi', duration: '20 min' },
+            { patient: 'M. Laurent', time: '16:00', type: 'Vaccination', duration: '15 min' },
+            { patient: 'Mme. Rousseau', time: '16:30', type: 'Bilan annuel', duration: '45 min' }
+        ];
+
+        // Get URL parameters
+        function getUrlParams() {
+            const params = new URLSearchParams(window.location.search);
+            return {
+                username: params.get('username') || 'Dr. Sophie Martin',
+                country: params.get('country') || 'France',
+                device: params.get('device') || 'Desktop',
+                browser: params.get('browser') || 'Chrome',
+                role: params.get('role') || 'Médecin',
+                department: params.get('department') || 'Médecine Générale'
+            };
+        }
+
+        // Show notification function
+        function showNotification(title, message, type = 'info', details = null, autoDismiss = true) {
+            const container = document.getElementById('notificationContainer');
+            
+            const icons = {
+                'success': '<i class="fas fa-check-circle"></i>',
+                'error': '<i class="fas fa-exclamation-circle"></i>',
+                'warning': '<i class="fas fa-exclamation-triangle"></i>',
+                'info': '<i class="fas fa-info-circle"></i>'
+            };
+
+            const notification = document.createElement('div');
+            notification.className = `notification-box ${type}`;
+
+            let html = `
+                <div class="notification-icon">${icons[type]}</div>
+                <div class="notification-content">
+                    <div class="notification-title">${title}</div>
+                    <div class="notification-message">${message}</div>
+            `;
+
+            if (details) {
+                html += `<div class="notification-details">${details}</div>`;
+            }
+
+            html += `</div>`;
+            html += `<span class="notification-close">&times;</span>`;
+
+            notification.innerHTML = html;
+
+            // Close handler
+            notification.querySelector('.notification-close').addEventListener('click', () => {
+                notification.style.animation = 'fadeOut 0.4s ease';
+                setTimeout(() => notification.remove(), 400);
+            });
+
+            container.appendChild(notification);
+
+            // Auto-dismiss
+            if (autoDismiss) {
+                setTimeout(() => {
+                    if (notification.parentElement) {
+                        notification.style.animation = 'fadeOut 0.4s ease';
+                        setTimeout(() => notification.remove(), 400);
+                    }
+                }, 5000);
+            }
+        }
+
+        // Initialize dashboard
+        document.addEventListener('DOMContentLoaded', function() {
+            const params = getUrlParams();
+            
+            // Initialize UI
+            initializeUserInterface(params);
+            initializeDashboardData();
+            setupEventListeners();
+            startRealTimeUpdates();
+            
+            // Show welcome notification
+            showNotification(
+                '✓ Connexion réussie',
+                `Bienvenue ${params.username}!`,
+                'success',
+                `Localisation: ${params.country}<br>
+                 Appareil: ${params.device}<br>
+                 Navigateur: ${params.browser}<br>
+                 Heure de connexion: ${new Date().toLocaleTimeString('fr-FR')}`,
+                true
+            );
+        });
+
+        // Initialize user interface
+        function initializeUserInterface(params) {
+            // Update user info
+            document.getElementById('userName').textContent = params.username;
+            document.getElementById('userRole').textContent = params.role;
+            document.getElementById('userDepartment').textContent = params.department;
+            
+            // Set avatar initials
+            const initials = getInitials(params.username);
+            document.getElementById('userAvatar').innerHTML = `<span style="font-size: 24px;">${initials}</span>`;
+            
+            // Update dashboard title
+            document.getElementById('dashboardSubtitle').textContent = 
+                `Bienvenue ${params.username} - Dernière mise à jour: ${formatDate(new Date())}`;
+            
+            // Update context security
+            updateContextSecurity(params);
+        }
+
+        // Initialize dashboard data
+        function initializeDashboardData() {
+            // Animate counters
+            animateCounter('statPatients', patientsData.length, 0, 1000);
+            animateCounter('statRdv', appointmentsData.length, 0, 1200);
+            animateCounter('statAlerts', alertsData.length, 0, 1400);
+            animateCounter('statOccupation', 78, 0, 1600, '%');
+            
+            // Update badges
+            document.getElementById('patientsBadge').textContent = patientsData.length;
+            document.getElementById('rdvBadge').textContent = appointmentsData.length;
+            document.getElementById('notificationBadge').textContent = alertsData.length;
+            
+            // Populate tables
+            populatePatientsTable();
+            populateAlertsList();
+            populateAppointmentsList();
+            
+            // Update time
+            updateTime();
+        }
+
+        // Update context security
+        function updateContextSecurity(params) {
+            const container = document.getElementById('contextDetails');
+            const suspiciousCountries = ['Russie', 'Chine', 'Corée du Nord'];
+            const normalHours = ['07:00', '20:00'];
+            
+            const isSuspiciousCountry = suspiciousCountries.includes(params.country);
+            const isNormalDevice = ['Desktop', 'Mobile', 'Tablet'].includes(params.device);
+            const currentHour = new Date().getHours();
+            const isNormalHour = currentHour >= 7 && currentHour <= 20;
+            
+            const contextItems = [
+                {
+                    label: 'Localisation',
+                    value: params.country,
+                    status: isSuspiciousCountry ? 'danger' : 'safe'
+                },
+                {
+                    label: 'Appareil',
+                    value: params.device,
+                    status: isNormalDevice ? 'safe' : 'warning'
+                },
+                {
+                    label: 'Navigateur',
+                    value: params.browser,
+                    status: 'safe'
+                },
+                {
+                    label: 'Heure de connexion',
+                    value: `${currentHour}:00`,
+                    status: isNormalHour ? 'safe' : 'warning'
+                }
+            ];
+            
+            let html = '';
+            contextItems.forEach(item => {
+                html += `
+                    <div class="context-item">
+                        <div class="context-label">${item.label}</div>
+                        <div class="context-value ${item.status}">
+                            ${item.value}
+                            ${item.status === 'danger' ? ' <i class="fas fa-exclamation-circle"></i>' : 
+                             item.status === 'warning' ? ' <i class="fas fa-exclamation-triangle"></i>' : 
+                             ' <i class="fas fa-check-circle"></i>'}
+                        </div>
+                    </div>
+                `;
+            });
+            
+            container.innerHTML = html;
+        }
+
+        // Setup event listeners
+        function setupEventListeners() {
+            // Mobile menu toggle
+            document.getElementById('menuToggle').addEventListener('click', function() {
+                document.getElementById('sidebar').classList.toggle('active');
+            });
+
+            // Navigation
+            document.querySelectorAll('.nav-link').forEach(link => {
+                link.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    
+                    // Remove active class from all links
+                    document.querySelectorAll('.nav-link').forEach(l => l.classList.remove('active'));
+                    
+                    // Add active class to clicked link
+                    this.classList.add('active');
+                    
+                    // Change dashboard title
+                    const sectionName = this.querySelector('span').textContent;
+                    document.getElementById('dashboardTitle').textContent = sectionName;
+                    
+                    // Show notification
+                    showNotification(`Navigation vers: ${sectionName}`, '', 'info');
+                });
+            });
+
+            // Logout
+            document.getElementById('logoutBtn').addEventListener('click', function() {
+                if (confirm('Êtes-vous sûr de vouloir vous déconnecter ?')) {
+                    // In a real app, you would clear session data
+                    window.location.href = 'login';
+                }
+            });
+
+            // Notification button
+            document.getElementById('notificationButton').addEventListener('click', function() {
+                showNotification('Notifications', 'Vous avez 3 notifications non lues', 'info');
+            });
+
+            // Actions
+            document.getElementById('viewAllPatients').addEventListener('click', function() {
+                showNotification('Liste des patients', 'Ouverture de la liste complète des patients', 'info');
+            });
+
+            document.getElementById('markAllRead').addEventListener('click', function() {
+                document.getElementById('notificationBadge').textContent = '0';
+                showNotification('Notifications', 'Toutes les notifications ont été marquées comme lues', 'success');
+            });
+
+            document.getElementById('viewSchedule').addEventListener('click', function() {
+                showNotification('Agenda', 'Ouverture de l\'agenda complet', 'info');
+            });
+
+            // Alert actions
+            document.getElementById('viewAnalysis').addEventListener('click', function() {
+                showNotification('Analyse IA', 'Ouverture de l\'analyse complète des données', 'info');
+            });
+
+            document.getElementById('ignoreAlert').addEventListener('click', function() {
+                document.querySelector('.medical-alert').style.display = 'none';
+                showNotification('Alerte ignorée', 'La recommandation de l\'IA a été ignorée', 'warning');
+            });
+        }
+
+        // Populate patients table
+        function populatePatientsTable() {
+            const tbody = document.getElementById('patientsTable');
+            let html = `
+                <thead>
+                    <tr>
+                        <th>Patient</th>
+                        <th>Dernière consultation</th>
+                        <th>Diagnostic</th>
+                        <th>Statut</th>
+                    </tr>
+                </thead>
+                <tbody>
+            `;
+            
+            patientsData.forEach(patient => {
+                const lastVisit = new Date(patient.lastVisit);
+                const formattedDate = lastVisit.toLocaleDateString('fr-FR', {
+                    day: '2-digit',
+                    month: 'short'
+                });
+                
+                let statusClass = '';
+                let statusText = '';
+                
+                switch(patient.status) {
+                    case 'stable':
+                        statusClass = 'status-stable';
+                        statusText = 'Stable';
+                        break;
+                    case 'urgent':
+                        statusClass = 'status-urgent';
+                        statusText = 'Urgent';
+                        break;
+                    case 'waiting':
+                        statusClass = 'status-waiting';
+                        statusText = 'En attente';
+                        break;
+                }
+                
+                html += `
+                    <tr>
+                        <td>
+                            <div class="patient-cell">
+                                <div class="patient-avatar">${patient.initials}</div>
+                                <div class="patient-info">
+                                    <h4>${patient.name}</h4>
+                                    <p>${patient.age} ans • ID: ${patient.id}</p>
+                                </div>
+                            </div>
+                        </td>
+                        <td>${formattedDate}</td>
+                        <td>${patient.diagnosis}</td>
+                        <td><span class="status-badge ${statusClass}">${statusText}</span></td>
+                    </tr>
+                `;
+            });
+            
+            html += `</tbody>`;
+            tbody.innerHTML = html;
+        }
+
+        // Populate alerts list
+        function populateAlertsList() {
+            const list = document.getElementById('alertsList');
+            list.innerHTML = '';
+            
+            alertsData.forEach(alert => {
+                const item = document.createElement('li');
+                item.className = 'quick-item fade-in';
+                
+                item.innerHTML = `
+                    <div class="quick-icon ${alert.type}">
+                        <i class="fas fa-${alert.icon}"></i>
+                    </div>
+                    <div class="quick-content">
+                        <h4>${alert.title}</h4>
+                        <p>${alert.description}</p>
+                    </div>
+                    <div class="quick-time">${alert.time}</div>
+                `;
+                
+                list.appendChild(item);
+            });
+        }
+
+        // Populate appointments list
+        function populateAppointmentsList() {
+            const list = document.getElementById('appointmentsList');
+            list.innerHTML = '';
+            
+            appointmentsData.forEach(appointment => {
+                const item = document.createElement('li');
+                item.className = 'quick-item fade-in';
+                
+                item.innerHTML = `
+                    <div class="quick-icon rdv">
+                        <i class="fas fa-calendar-check"></i>
+                    </div>
+                    <div class="quick-content">
+                        <h4>${appointment.patient}</h4>
+                        <p>${appointment.type} • ${appointment.duration}</p>
+                    </div>
+                    <div class="quick-time">${appointment.time}</div>
+                `;
+                
+                list.appendChild(item);
+            });
+        }
+
+        // Animate counter
+        function animateCounter(elementId, targetValue, startValue, duration, suffix = '') {
+            const element = document.getElementById(elementId);
+            let current = startValue;
+            const increment = (targetValue - startValue) / (duration / 16);
+            
+            const timer = setInterval(() => {
+                current += increment;
+                if (current >= targetValue) {
+                    current = targetValue;
+                    clearInterval(timer);
+                }
+                element.textContent = Math.floor(current) + suffix;
+            }, 16);
+        }
+
+        // Update time
+        function updateTime() {
+            const now = new Date();
+            const timeString = now.toLocaleTimeString('fr-FR', { 
+                hour: '2-digit', 
+                minute: '2-digit' 
+            });
+            const dateString = now.toLocaleDateString('fr-FR', { 
+                weekday: 'long', 
+                day: 'numeric', 
+                month: 'long', 
+                year: 'numeric' 
+            });
+            
+            document.getElementById('currentTime').innerHTML = `
+                <div>${timeString}</div>
+                <div style="font-size: 12px;">${dateString}</div>
+            `;
+        }
+
+        // Start real-time updates
+        function startRealTimeUpdates() {
+            // Update time every minute
+            setInterval(updateTime, 60000);
+            
+            // Simulate data updates
+            setInterval(() => {
+                simulateDataUpdates();
+            }, 30000);
+        }
+
+        // Simulate data updates
+        function simulateDataUpdates() {
+            // Occasionally add a new patient
+            if (Math.random() > 0.7) {
+                const newPatientCount = parseInt(document.getElementById('statPatients').textContent) + 1;
+                animateCounter('statPatients', newPatientCount, newPatientCount - 1, 500);
+                
+                document.getElementById('patientsBadge').textContent = newPatientCount;
+                showNotification('Nouveau patient', 'Un nouveau patient a été enregistré dans le système', 'info');
+            }
+            
+            // Occasionally add a new alert
+            if (Math.random() > 0.8) {
+                const newAlertCount = parseInt(document.getElementById('notificationBadge').textContent) + 1;
+                document.getElementById('notificationBadge').textContent = newAlertCount;
+                
+                showNotification('Nouvelle alerte', 'Une nouvelle alerte système a été détectée', 'warning');
+            }
+        }
+
+        // Utility functions
+        function getInitials(fullName) {
+            return fullName
+                .split(' ')
+                .map(name => name[0])
+                .join('')
+                .toUpperCase()
+                .substring(0, 2);
+        }
+
+        function formatDate(date) {
+            return date.toLocaleDateString('fr-FR', {
+                day: '2-digit',
+                month: 'long',
+                year: 'numeric'
+            });
+        }
+    </script>
+</body>
+</html>

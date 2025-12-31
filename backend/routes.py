@@ -21,6 +21,11 @@ def login_page():
     return render_template('login.html')
 
 
+@app.route('/home')
+def home_page():
+    return render_template('home.html')
+
+
 # --- FONCTIONS EXTERNES DE TRAITEMENT ---
 
 def _extract_request_data(request, data, login_status: str) -> dict:
@@ -173,15 +178,30 @@ def handle_login():
     
     if risk_code == 'sql':
         print(f"[Backend] ALERTE MAX: SQL Injection détectée (IA)")
-        return jsonify({"message": "ALERTE SÉCURITÉ : SQL Injection détectée."}), 403
+        return jsonify({
+            "message": "ALERTE SÉCURITÉ : SQL Injection détectée.",
+            "attack_type": "SQL Injection",
+            "description": "Une tentative d'injection SQL a été détectée par l'IA",
+            "risk_level": "CRITIQUE"
+        }), 403
 
     if risk_code == 'brut':
         print(f"[Backend] ALERTE: Brute Force détecté (IA)")
-        return jsonify({"message": "ALERTE SÉCURITÉ : Brute Force détectée."}), 403
+        return jsonify({
+            "message": "ALERTE SÉCURITÉ : Brute Force détectée.",
+            "attack_type": "Brute Force",
+            "description": "Plusieurs tentatives de connexion suspectes détectées par l'IA",
+            "risk_level": "ÉLEVÉ"
+        }), 403
 
     if risk_code == 'usur':
         print(f"[Backend] ALERTE: Usurpation détectée (IA).")
-        return jsonify({"message": "Usurpation détectée."}), 401
+        return jsonify({
+            "message": "Usurpation détectée.",
+            "attack_type": "Usurpation de Compte",
+            "description": "Changement anormal du contexte d'accès détecté par l'IA",
+            "risk_level": "ÉLEVÉ"
+        }), 401
 
     # --- E. Réponse Standard ---
     if login_status == "False":
